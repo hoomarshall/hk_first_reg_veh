@@ -10,10 +10,12 @@ from glob import glob
 # python3 -m album_orientation --walk_album
 
 def walk_album(album=None):
+
     if not album: raise ValueError('Please enter album Name')
     if not os.path.exists( f'{os.getcwd()}\\{album}\\' ): raise ValueError(f'PATH: "{os.getcwd()}\\{album}\\" DO NOT EXIST' )
     a_h, a_v, a_s = ( f'{os.getcwd()}\\{album}_horizontal\\', f'{os.getcwd()}\\{album}_vertical\\', f'{os.getcwd()}\\{album}_square\\' )
-    for p_ in (a_h, a_v, a_s):
+    orientation_map = { 'horizontal':a_h, 'vertical':a_v, 'square':a_s }
+    for p_ in orientation_map.values():
         if not os.path.exists( p_ ): os.makedirs( p_ )
     for f_ in glob(f'{os.getcwd()}\\{album}\\*'):
         if not f_.endswith(('.jpg','.png')): continue
@@ -21,10 +23,8 @@ def walk_album(album=None):
         width, height = im.size
         orientation = 'horizontal' if width > height else 'vertical'
         orientation = 'square' if width == height else orientation
-        if orientation == 'horizontal': shutil.copy( f_ , a_h)
-        if orientation == 'vertical': shutil.copy( f_ , a_v)
-        if orientation == 'square': shutil.copy( f_ , a_s)
-    for p_ in (a_h, a_v, a_s):
+        if orientation in orientation_map: shutil.copy( f_ , orientation_map[orientation])
+    for p_ in orientation_map.values():
         print( f"{p_} : {sum(len(f_) for _, _, f_ in os.walk( p_ ))}" )
         if sum(len(f_) for _, _, f_ in os.walk( p_ )) == 0: os.rmdir(p_)
 
